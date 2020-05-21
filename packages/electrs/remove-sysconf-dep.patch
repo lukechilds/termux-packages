@@ -1,0 +1,34 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index fa21354..33b9e02 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -45,7 +45,6 @@ serde_derive = "1.0"
+ serde_json = "1.0"
+ signal-hook = "0.1"
+ stderrlog = "0.4.1"
+-sysconf = ">=0.3.4"
+ time = "0.1"
+ tiny_http = "0.6"
+ 
+diff --git a/src/metrics.rs b/src/metrics.rs
+index 5c678b0..d0decc1 100644
+--- a/src/metrics.rs
++++ b/src/metrics.rs
+@@ -5,7 +5,6 @@ use std::io;
+ use std::net::SocketAddr;
+ use std::thread;
+ use std::time::Duration;
+-use sysconf;
+ use tiny_http;
+ 
+ pub use prometheus::{
+@@ -112,8 +111,7 @@ fn parse_stats() -> Result<Stats> {
+         fs::read_to_string("/proc/self/stat").chain_err(|| "failed to read /proc/self/stat")?;
+     let parts: Vec<&str> = value.split_whitespace().collect();
+     let page_size = page_size::get() as u64;
+-    let ticks_per_second = sysconf::raw::sysconf(sysconf::raw::SysconfVariable::ScClkTck)
+-        .expect("failed to get _SC_CLK_TCK") as f64;
++    let ticks_per_second = Ok(Stats { utime: 0, rss: 0, fds: 0, })
+ 
+     let parse_part = |index: usize, name: &str| -> Result<u64> {
+         Ok(parts
